@@ -8,9 +8,6 @@ import json
 from scipy.misc import imread
 
 
-KEY = "blahv"
-URL = "derp"
-
 # -- Environment itself here --
 
 class AsteroidSceneEnv(gym.Env):
@@ -19,9 +16,13 @@ class AsteroidSceneEnv(gym.Env):
         'video.frames_per_second' : 60
     }
 
+    def _configure(self, _url, _key):
+        self.url = _url
+        self.key = _key
+
     #Initialize scene
     def __init__(self):
-        response = urllib.urlopen("http://127.0.0.1:8000/simulator/init/")
+        response = urllib.urlopen("http://{}:8000/simulator/init?key={}".format(self.url, self.key))
         dictionary = json.loads(response.read())
 
         action_dim = dictionary[u'action_dim']
@@ -36,13 +37,13 @@ class AsteroidSceneEnv(gym.Env):
 
     #Reset
     def _reset(self):
-        response = urllib.urlopen("http://127.0.0.1:8000/simulator/reset/")
+        response = urllib.urlopen("http://{}:8000/simulator/reset?key={}".format(self.url, self.key))
         
         return json.loads(response.read())[u'state']
 
     #Take action
     def _step(self, a):
-        response  = urllib.urlopen("http://127.0.0.1:8000/simulator/step?action={}".format(a))
+        response  = urllib.urlopen("http://{}/simulator/step?key={}&action={}".format(self.url, self.key, a))
         dictionary = json.loads(response.read())
 
         state = dictionary[u'state']
@@ -52,7 +53,13 @@ class AsteroidSceneEnv(gym.Env):
         return state, reward, episode_over, {}
 
     #Refresh render
-    def _render(self, mode, close):
-        frame  = imread(urllib.urlopen("http://127.0.0.1:8000/simulator/render"))
+    def _render(self, close):
+        frame  = imread(urllib.urlopen("http://{}:8000/simulator/render?key={}".format(self.url, self.key)))
         return frame
+
+        #Refresh render
+    def _buffer(self, mode, close):
+        frame  = imread(urllib.urlopen("http://{}:8000/simulator/buffer?key={}&mode={}".format(self.url, self.key, mode)))
+        return frame
+
 
