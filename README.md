@@ -18,7 +18,7 @@ import asteroid
 env = gym.make('asteroid-v0')
 ```
 
-##Setup
+## Setup
 
 To use a running Asteroid simulation with this gem, simply take the url and key from the web app.
 
