@@ -7,6 +7,10 @@ import urllib
 import json
 from scipy.misc import imread
 
+
+KEY = "blahv"
+URL = "derp"
+
 # -- Environment itself here --
 
 class AsteroidSceneEnv(gym.Env):
