@@ -16,12 +16,11 @@ class AsteroidSceneEnv(gym.Env):
         'video.frames_per_second' : 60
     }
 
+    #Initialize scene
     def _configure(self, _url, _key):
         self.url = _url
         self.key = _key
 
-    #Initialize scene
-    def __init__(self):
         response = urllib.urlopen("http://{}:8000/simulator/init?key={}".format(self.url, self.key))
         dictionary = json.loads(response.read())
 
@@ -33,7 +32,7 @@ class AsteroidSceneEnv(gym.Env):
 
         high = np.inf*np.ones([obs_dim])
         self.observation_space = gym.spaces.Box(-high, high)
-        
+
 
     #Reset
     def _reset(self):
@@ -43,7 +42,7 @@ class AsteroidSceneEnv(gym.Env):
 
     #Take action
     def _step(self, a):
-        response  = urllib.urlopen("http://{}/simulator/step?key={}&action={}".format(self.url, self.key, a))
+        response  = urllib.urlopen("http://{}:8000/simulator/step?key={}&action={}".format(self.url, self.key, str(a)))
         dictionary = json.loads(response.read())
 
         state = dictionary[u'state']
@@ -51,9 +50,10 @@ class AsteroidSceneEnv(gym.Env):
         episode_over = dictionary[u'episode_over']
 
         return state, reward, episode_over, {}
+        return {}, {}, {}, {}
 
     #Refresh render
-    def _render(self, close):
+    def _render(self, mode, close):
         frame  = imread(urllib.urlopen("http://{}:8000/simulator/render?key={}".format(self.url, self.key)))
         return frame
 
